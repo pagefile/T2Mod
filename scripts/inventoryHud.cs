@@ -45,6 +45,8 @@ $InvWeapon[13] = "TR2 Shocklance";
 $InvWeapon[14] = "TR2 Mortar";
 // END AO
 
+$InvWeaponCount = 15;
+
 $NameToInv["Blaster"] = "Blaster";
 $NameToInv["Plasma Rifle"] = "Plasma";
 $NameToInv["Chaingun"] = "Chaingun";

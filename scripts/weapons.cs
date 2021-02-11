@@ -1,5 +1,9 @@
 $HandInvThrowTimeout = 0.8 * 1000; // 1/2 second between throwing grenades or mines
 
+// Prototype weapons list
+$WeaponPrototypes[0] = "AutoBlaster";
+$WeaponPrototypesCount = 1;
+
 // z0dd - ZOD, 9/13/02. Added global array for serverside weapon reticles and "visible"
 $WeaponsHudData[0, bitmapName] = "gui/hud_blaster";
 $WeaponsHudData[0, itemDataName] = "Blaster";
@@ -150,6 +154,70 @@ exec("scripts/weapons/flashGrenade.cs");
 exec("scripts/weapons/flareGrenade.cs");
 exec("scripts/weapons/concussionGrenade.cs");
 exec("scripts/weapons/cameraGrenade.cs");
+
+// exec all prototype weapon scripts
+%search = "scripts/weapons/prototypes/*.cs";
+for(%file = findFirstFile(%search); %file !$= ""; %file = findNextFile(%search))
+{  
+   exec(%file);
+}
+
+// Add prototype weapons to inventory hud list
+// Real talk: I would have put this in inventoryHud.cs with the rest
+// of the inventory hud stuff, but I cannot for the life of me find
+// the line of code that executes that file. It is by the will of
+// the dark lord alone that inventoryHud.cs is even compiled
+// as far as I can tell, and since I can't change the exec order around
+// (if it's even a good idea) I'm doing this here after
+// the weapon files are executed and all the required datablocks
+// are loaded.
+for(%i = 0; %i < $WeaponPrototypesCount; %i++)
+{
+   %name = $WeaponPrototypes[%i].displayName;
+   $InvWeapon[$InvWeaponCount] = %name;
+   $NameToInv[%name] = $WeaponPrototypes[%i];
+   $InvWeaponCount++;
+}
+
+// Add info to weapon hud lists.
+// weapons.cs is exec'd after player.cs so player datablock inventory
+// values can also be modified here
+for(%i = 0; %i < $WeaponPrototypesCount; %i++)
+{
+   $WeaponsHudData[$WeaponsHudCount, bitmapName]   = $WeaponPrototypes[%i].HUDIcon;
+   $WeaponsHudData[$WeaponsHudCount, itemDataName] = $WeaponPrototypes[%i];
+   $WeaponsHudData[$WeaponsHudCount, reticle] = $WeaponPrototypes[%i].HUDReticle;
+   $WeaponsHudData[$WeaponsHudCount, visible] = $WeaponPrototypes[%i].HUDReticleCircleVisible;
+   $WeaponsHudCount++;
+
+   // Modify inventory counts
+   // Since this is a recreation I have this here, but I wouldn't do this if I
+   // originally came up with this today. Inventory counts should remain in player.cs
+   %weapon = $WeaponPrototypes[%i];
+   %ammo = $WeaponPrototypes[%i].ammo;
+   LightMaleHumanArmor.max[%weapon] = 1;
+   MediumMaleHumanArmor.max[%weapon] = 1;
+   HeavyMaleBiodermArmor.max[%weapon] = 1;
+   LightFemaleHumanArmor.max[%weapon] = 1;
+   MediumFemaleHumanArmor.max[%weapon] = 1;
+   HeavyFemaleHumanArmor.max[%weapon] = 1;
+   LightMaleBiodermArmor.max[%weapon] = 1;
+   MediumMaleBiodermArmor.max[%weapon] = 1;
+   HeavyMaleBiodermArmor.max[%weapon] = 1;
+   
+   if(%ammo != "")
+   {
+      LightMaleHumanArmor.max[%ammo] = %weapon.ammoAmount[LightMaleHumanArmor];
+      MediumMaleHumanArmor.max[%ammo] = %weapon.ammoAmount[MediumMaleHumanArmor];
+      HeavyMaleHumanArmor.max[%ammo] = %weapon.ammoAmount[HeavyMaleHumanArmor];
+      LightFemaleHumanArmor.max[%ammo] = %weapon.ammoAmount[LightFemaleHumanArmor];
+      MediumFemaleHumanArmor.max[%ammo] = %weapon.ammoAmount[MediumFemaleHumanArmor];
+      HeavyFemaleHumanArmor.max[%ammo] = %weapon.ammoAmount[HeavyFemaleHumanArmor];
+      LightMaleBiodermArmor.max[%ammo] = %weapon.ammoAmount[LightMaleBiodermArmor];
+      MediumMaleBiodermArmor.max[%ammo] = %weapon.ammoAmount[MediumMaleBiodermArmor];
+      HeavyMaleBiodermArmor.max[%ammo] = %weapon.ammoAmount[HeavyMaleBiodermArmor];
+   }
+}
 
 //----------------------------------------------------------------------------
 
